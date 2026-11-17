@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喵呜小站 · 可爱问候</title>
+    <style>
+        :root {
+            --bg: #fffaf3;
+            --card: #ffffff;
+            --ink: #4a3b34;
+            --muted: #9c8878;
+            --accent: #ffb3c1;
+            --line: #f3e6d8;
+            --shadow: 0 10px 30px rgba(196, 158, 122, 0.16);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 12% 8%, #ffe9ef 0%, transparent 45%),
+                        radial-gradient(circle at 88% 92%, #e8f6ff 0%, transparent 45%),
+                        var(--bg);
+            color: var(--ink);
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 56px 20px 72px;
+        }
+
+        header { text-align: center; margin-bottom: 40px; }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: clamp(26px, 4vw, 38px);
+            letter-spacing: 1px;
+        }
+
+        .sub { color: var(--muted); font-size: 15px; margin: 0; }
+
+        .grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            width: min(1040px, 100%);
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform .22s ease, box-shadow .22s ease;
+        }
+
+        .card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(196, 158, 122, 0.24); }
+
+        .card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+
+        .body { padding: 18px 20px 22px; }
+
+        .name {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .name::before { content: "🐾"; font-size: 15px; }
+
+        .greeting { margin: 0 0 16px; line-height: 1.7; font-size: 14.5px; color: #6b594d; }
+
+        .link {
+            display: inline-block;
+            font-size: 13px;
+            color: #b06d7d;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent);
+            padding-bottom: 2px;
+        }
+
+        .link:hover { color: #8d4f5f; }
+
+        footer { margin-top: 44px; color: var(--muted); font-size: 13px; }
+
+        code {
+            background: #fff3f6;
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 12.5px;
+            color: #a05a6b;
+        }
+
+        .error { color: #c0392b; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>喵呜小站 · 三只小猫的问候</h1>
+    <p class="sub">三个接口，各送来一张可爱图片和一句软乎乎的问候</p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<footer>
+    接口：<code>/api/greeting/cat-star</code> · <code>/api/greeting/cat-snow</code> · <code>/api/greeting/cat-ginger</code>
+</footer>
+
+<script>
+    const grid = document.getElementById('grid');
+
+    fetch('/api/greetings')
+        .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(items => {
+            items.forEach(item => {
+                const card = document.createElement('article');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${item.imageUrl}" alt="${item.name}">
+                    <div class="body">
+                        <p class="name">${item.name}</p>
+                        <p class="greeting">${item.greeting}</p>
+                        <a class="link" href="/api/greeting/${item.id}" target="_blank" rel="noopener">查看接口返回 →</a>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        })
+        .catch(err => {
+            grid.innerHTML = '<p class="error">加载失败：' + err.message + '</p>';
+        });
+</script>
+</body>
+</html>
